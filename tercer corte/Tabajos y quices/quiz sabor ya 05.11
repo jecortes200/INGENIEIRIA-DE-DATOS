@@ -1,0 +1,34 @@
+
+ db.pedidos.find({estado: 'entregado'})
+
+db.pedidos.find({ estado: 'entregado' }, { total: 1 }).sort({ total: -1 })
+
+db.pedidos.find({ estado: 'entregado' },{'restaurante.mombre':1, total: 1 , _id:0}).sort({ total: -1 })
+
+db.pedidos.aggregate([  { $match: { estado: 'entregado' } },  { $group: { _id: '$restaurante.nombre', ventas: { $sum: '$total' } } }, { $sort: { ventas: -1 } }])
+
+
+db.pedidos.aggregate([  
+  { $match: { estado: 'entregado' } },  
+  {  $group: {   _id: '$restaurante.ciudad',  ventas: { $sum: '$total' },  promedioVenta: { $avg: '$total' },   minVenta: { $min: '$total' },  maxVenta: { $max: '$total' } 
+    } 
+  },
+  { $sort: { ventas: -1 } }
+])
+
+parte 2: 
+
+//1. ventas de pedido por metodos de pago 
+
+db.pedidos.aggregate([ { $match: { estado: 'entregado' } },
+  {  $group: {   _id: '$metodoPago',  ventasTotales: { $sum: '$total' }   }  },
+  { $sort: { ventasTotales: -1 } }
+])
+
+//2. pedidos en estado de cancelado 
+
+db.pedidos.aggregate([
+  { $match: { estado: 'cancelado' } },
+  { $count: 'pedidosCancelados' }
+])
+
